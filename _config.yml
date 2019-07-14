@@ -1,11 +1,12 @@
-title: John Doe # your name (or website title) here
+title: Mike Levine # your name (or website title) here
 logo: "/images/Levine, Mike Headshot2.png?raw=true" # your photo (or logo) here
 description: > # your text below (remove <br> elements if you don't need line breaks)
-  First description 
+  Welcome to my portfolio! I'm an analytics and data science professional working in Philadelphia.
   <br><br>
-  Second description 
+  I'm proficient at R, SQL, Excel, regression and machine learning, among other areas. Questions? Feel free to shoot me an email.
   <br><br>
-  <a href="https://www.linkedin.com/in/example/">View My LinkedIn Profile</a> 
+  <a href="https://www.linkedin.com/in/mlevine4/">View My LinkedIn Profile</a> 
+  <a href="https://public.tableau.com/profile/mike8183#!/">View My Tableau Public Profile</a> 
   
 theme: jekyll-theme-minimal
 google_analytics: UA-000000-0 # your Google Analytics tracking ID here
