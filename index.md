@@ -1,29 +1,25 @@
 ## Portfolio
 
 ---
+### SQL
 
-### Category Name 1 
+- [SQLite Tutorial #1](/pdf/SQL_SQLite.pdf)
 
-[Project 1 Title](/sample_page)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+### Regression and ANOVA
 
----
-[Project 2 Title](/pdf/sample_presentation.pdf)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+- [Variable Selection for Regression in R](/pdf/R_Regression_Variable Selection in R.pdf)
+- [Logistic Regression in R](/pdf/R_Regression_Logistic_Regression_in_R.pdf)
+- [Interaction Terms with Regression in R](/pdf/R_Regression_Interaction Terms in Regression.pdf)
+- [Logistic Regression in R](/pdf/R_Regression_Logistic_Regression_in_R.pdf)
+- [ANOVA in R](/pdf/R_ANOVA_ANOVA in R.pdf)
 
----
-[Project 3 Title](http://example.com/)
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
+### Clustering
 
----
+- [K Means Clustering in R](/pdf/R_Clustering_K Means Clustering.pdf)
+- [Hierarchical Clustering in R](/pdf/R_Clustering_Hierarchical clustering of the mtcars data.pdf)
 
-### Category Name 2
-
-- [Project 1 Title](http://example.com/)
-- [Project 2 Title](http://example.com/)
-- [Project 3 Title](http://example.com/)
-- [Project 4 Title](http://example.com/)
-- [Project 5 Title](http://example.com/)
+### Basic R
+- [GGPlot in R](/pdf/R_General_GGPlot_in_R.pdf)
 
 ---
 
