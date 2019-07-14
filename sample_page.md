@@ -1,31 +1,11 @@
-## This can be your internal website page / project page
+## About Me
 
-**Project description:** Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+**My background:** I'm a graduate student at Temple University pursuing a Master of Science in Business Analytics. I also work full-time as a data analyst for Retail Insights, LLC, a retail data analytics company, where I work as an onsite consultant to AmerisourceBergen's Consumer Products team. 
 
-### 1. Suggest hypotheses about the causes of observed phenomena
+I'm skilled in a number of data science tools and methods, like Excel and VBA; Tableau; R; SQL; linear, multiple, logistic and multinomial regression; ANOVA; machine learning, including random forests; and clustering and segmentation.
 
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. 
+Outside of the office, I love rock climbing, hiking and running. I'm a big fan of the New York Jets (despite our historically less-than-stellar track record) and enjoy the little things in life. I love craft beer, comedy shows, and recently picked up an appreciation for traveling. I've been to 24 US states and Washington DC, Mexico, Israel, Sierra Leone, and (soon) Puerto Rico.
 
-```javascript
-if (isAwesome){
-  return true
-}
-```
+### Resume
 
-### 2. Assess assumptions on which statistical inference will be based
-
-```javascript
-if (isAwesome){
-  return true
-}
-```
-
-### 3. Support the selection of appropriate statistical tools and techniques
-
-<img src="images/dummy_thumbnail.jpg?raw=true"/>
-
-### 4. Provide a basis for further data collection through surveys or experiments
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. 
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+The most recent copy of my resume can be found here:
