@@ -1366,8 +1366,8 @@ ul
 
 <div class=WordSection1>
 
-<h1 align=center style='text-align:center'>Hierarchical Clustering of the ‘<span
-class=SpellE>mtcars</span>’ Data</h1>
+<h1 align=center style='text-align:center'>Hierarchical Clustering of the Â‘<span
+class=SpellE>mtcars</span>Â’ Data</h1>
 
 <p class=FirstParagraph align=center style='text-align:center'>Michael Levine</p>
 
@@ -1376,7 +1376,7 @@ Learning and Data Mining (STAT 5603-401, Spring 2019)<o:p></o:p></p>
 
 <p class=FirstParagraph>The R dataset <span class=SpellE><i style='mso-bidi-font-style:
 normal'>mtcars</i></span> consists of measurements from a collection of 32
-automobiles. In the dataset is 11 separate numeric variables. Using ‘head’, let’s
+automobiles. In the dataset is 11 separate numeric variables. Using Â‘headÂ’, letÂ’s
 look at the first five rows of the dataset:<o:p></o:p></p>
 
 <pre style='line-height:11.25pt;background:#F2F2F2;mso-background-themecolor:
@@ -1391,10 +1391,10 @@ none windowtext 0in;padding:0in'><o:p></o:p></span></pre><pre style='line-height
 11.25pt;background:#F2F2F2;mso-background-themecolor:background1;mso-background-themeshade:
 242;word-break:break-all'><span style='font-family:"Lucida Console";color:black;
 mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:none windowtext 0in;
-padding:0in'><span style='mso-spacerun:yes'>          </span><span style='mso-spacerun:yes'>   </span><span style='mso-spacerun:yes'>         </span>mpg <span
+padding:0in'><span style='mso-spacerun:yes'>Â Â Â Â Â Â Â Â Â  </span><span style='mso-spacerun:yes'>Â Â Â </span><span style='mso-spacerun:yes'>Â Â Â Â Â Â Â Â Â </span>mpg <span
 class=SpellE>cyl</span> <span class=SpellE><span class=GramE>disp</span></span><span
-class=GramE><span style='mso-spacerun:yes'>  </span>hp</span> drat<span style='mso-spacerun:yes'>    </span><span
-class=SpellE>wt</span><span style='mso-spacerun:yes'>  </span><span
+class=GramE><span style='mso-spacerun:yes'>Â  </span>hp</span> drat<span style='mso-spacerun:yes'>Â Â Â  </span><span
+class=SpellE>wt</span><span style='mso-spacerun:yes'>Â  </span><span
 class=SpellE>qsec</span> vs am gear carb</span><span style='font-family:"Lucida Console";
 border:none windowtext 1.0pt;mso-border-alt:none windowtext 0in;padding:0in'><o:p></o:p></span></pre>
 
@@ -1405,11 +1405,11 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Mazda RX4<span
-style='mso-spacerun:yes'>         </span>21.0<span style='mso-spacerun:yes'>  
-</span><span class=GramE>6<span style='mso-spacerun:yes'>  </span>160</span>
-110 3.90 2.620 16.46<span style='mso-spacerun:yes'>  </span>0<span
-style='mso-spacerun:yes'>  </span>1<span style='mso-spacerun:yes'>   
-</span>4<span style='mso-spacerun:yes'>    </span>4</span><span
+style='mso-spacerun:yes'>Â Â Â Â Â Â Â Â  </span>21.0<span style='mso-spacerun:yes'>Â Â 
+</span><span class=GramE>6<span style='mso-spacerun:yes'>Â  </span>160</span>
+110 3.90 2.620 16.46<span style='mso-spacerun:yes'>Â  </span>0<span
+style='mso-spacerun:yes'>Â  </span>1<span style='mso-spacerun:yes'>Â Â Â 
+</span>4<span style='mso-spacerun:yes'>Â Â Â  </span>4</span><span
 style='font-size:10.0pt;font-family:"Lucida Console";mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:"Courier New";border:none windowtext 1.0pt;
 mso-border-alt:none windowtext 0in;padding:0in'><o:p></o:p></span></p>
@@ -1421,11 +1421,11 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Mazda RX4 Wag<span
-style='mso-spacerun:yes'>     </span>21.0<span style='mso-spacerun:yes'>  
-</span><span class=GramE>6<span style='mso-spacerun:yes'>  </span>160</span>
-110 3.90 2.875 17.02<span style='mso-spacerun:yes'>  </span>0<span
-style='mso-spacerun:yes'>  </span>1<span style='mso-spacerun:yes'>   
-</span>4<span style='mso-spacerun:yes'>    </span>4</span><span
+style='mso-spacerun:yes'>Â Â Â Â  </span>21.0<span style='mso-spacerun:yes'>Â Â 
+</span><span class=GramE>6<span style='mso-spacerun:yes'>Â  </span>160</span>
+110 3.90 2.875 17.02<span style='mso-spacerun:yes'>Â  </span>0<span
+style='mso-spacerun:yes'>Â  </span>1<span style='mso-spacerun:yes'>Â Â Â 
+</span>4<span style='mso-spacerun:yes'>Â Â Â  </span>4</span><span
 style='font-size:10.0pt;font-family:"Lucida Console";mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:"Courier New";border:none windowtext 1.0pt;
 mso-border-alt:none windowtext 0in;padding:0in'><o:p></o:p></span></p>
@@ -1437,12 +1437,12 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Datsun 710<span
-style='mso-spacerun:yes'>        </span>22.8<span style='mso-spacerun:yes'>  
-</span><span class=GramE>4<span style='mso-spacerun:yes'>  </span>108</span><span
-style='mso-spacerun:yes'>  </span>93 3.85 2.320 18.61<span
-style='mso-spacerun:yes'>  </span>1<span style='mso-spacerun:yes'> 
-</span>1<span style='mso-spacerun:yes'>    </span>4<span
-style='mso-spacerun:yes'>    </span>1</span><span style='font-size:10.0pt;
+style='mso-spacerun:yes'>Â Â Â Â Â Â Â  </span>22.8<span style='mso-spacerun:yes'>Â Â 
+</span><span class=GramE>4<span style='mso-spacerun:yes'>Â  </span>108</span><span
+style='mso-spacerun:yes'>Â  </span>93 3.85 2.320 18.61<span
+style='mso-spacerun:yes'>Â  </span>1<span style='mso-spacerun:yes'>Â 
+</span>1<span style='mso-spacerun:yes'>Â Â Â  </span>4<span
+style='mso-spacerun:yes'>Â Â Â  </span>1</span><span style='font-size:10.0pt;
 font-family:"Lucida Console";mso-fareast-font-family:"Times New Roman";
 mso-bidi-font-family:"Courier New";border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'><o:p></o:p></span></p>
@@ -1454,11 +1454,11 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Hornet 4 Drive<span
-style='mso-spacerun:yes'>    </span>21.4<span style='mso-spacerun:yes'>  
-</span><span class=GramE>6<span style='mso-spacerun:yes'>  </span>258</span>
-110 3.08 3.215 19.44<span style='mso-spacerun:yes'>  </span>1<span
-style='mso-spacerun:yes'>  </span>0<span style='mso-spacerun:yes'>   
-</span>3<span style='mso-spacerun:yes'>    </span>1</span><span
+style='mso-spacerun:yes'>Â Â Â  </span>21.4<span style='mso-spacerun:yes'>Â Â 
+</span><span class=GramE>6<span style='mso-spacerun:yes'>Â  </span>258</span>
+110 3.08 3.215 19.44<span style='mso-spacerun:yes'>Â  </span>1<span
+style='mso-spacerun:yes'>Â  </span>0<span style='mso-spacerun:yes'>Â Â Â 
+</span>3<span style='mso-spacerun:yes'>Â Â Â  </span>1</span><span
 style='font-size:10.0pt;font-family:"Lucida Console";mso-fareast-font-family:
 "Times New Roman";mso-bidi-font-family:"Courier New";border:none windowtext 1.0pt;
 mso-border-alt:none windowtext 0in;padding:0in'><o:p></o:p></span></p>
@@ -1470,11 +1470,11 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Hornet <span class=SpellE>Sportabout</span>
-18.7<span style='mso-spacerun:yes'>   </span><span class=GramE>8<span
-style='mso-spacerun:yes'>  </span>360</span> 175 3.15 3.440 17.02<span
-style='mso-spacerun:yes'>  </span>0<span style='mso-spacerun:yes'> 
-</span>0<span style='mso-spacerun:yes'>    </span>3<span
-style='mso-spacerun:yes'>    </span>2</span><span style='font-size:10.0pt;
+18.7<span style='mso-spacerun:yes'>Â Â  </span><span class=GramE>8<span
+style='mso-spacerun:yes'>Â  </span>360</span> 175 3.15 3.440 17.02<span
+style='mso-spacerun:yes'>Â  </span>0<span style='mso-spacerun:yes'>Â 
+</span>0<span style='mso-spacerun:yes'>Â Â Â  </span>3<span
+style='mso-spacerun:yes'>Â Â Â  </span>2</span><span style='font-size:10.0pt;
 font-family:"Lucida Console";mso-fareast-font-family:"Times New Roman";
 mso-bidi-font-family:"Courier New";border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'><o:p></o:p></span></p>
@@ -1486,19 +1486,19 @@ background:#F2F2F2;mso-background-themecolor:background1;mso-background-themesha
 mso-fareast-font-family:"Times New Roman";mso-bidi-font-family:"Courier New";
 color:black;mso-color-alt:windowtext;border:none windowtext 1.0pt;mso-border-alt:
 none windowtext 0in;padding:0in'>## Valiant<span
-style='mso-spacerun:yes'>           </span>18.1<span
-style='mso-spacerun:yes'>   </span><span class=GramE>6<span
-style='mso-spacerun:yes'>  </span>225</span> 105 2.76 3.460 20.22<span
-style='mso-spacerun:yes'>  </span>1<span style='mso-spacerun:yes'> 
-</span>0<span style='mso-spacerun:yes'>    </span>3<span
-style='mso-spacerun:yes'>    </span>1</span><span style='font-size:10.0pt;
+style='mso-spacerun:yes'>Â Â Â Â Â Â Â Â Â Â  </span>18.1<span
+style='mso-spacerun:yes'>Â Â  </span><span class=GramE>6<span
+style='mso-spacerun:yes'>Â  </span>225</span> 105 2.76 3.460 20.22<span
+style='mso-spacerun:yes'>Â  </span>1<span style='mso-spacerun:yes'>Â 
+</span>0<span style='mso-spacerun:yes'>Â Â Â  </span>3<span
+style='mso-spacerun:yes'>Â Â Â  </span>1</span><span style='font-size:10.0pt;
 font-family:"Lucida Console";mso-fareast-font-family:"Times New Roman";
 mso-bidi-font-family:"Courier New"'><o:p></o:p></span></p>
 
 <p class=SourceCode><o:p>&nbsp;</o:p></p>
 
-<p class=Compact>First, let’s use the ‘<span class=SpellE>dist</span>’ function
-to find the distance between each car. We’ll then plot the distance matrix using
+<p class=Compact>First, letÂ’s use the Â‘<span class=SpellE>dist</span>Â’ function
+to find the distance between each car. WeÂ’ll then plot the distance matrix using
 the <span class=SpellE><i style='mso-bidi-font-style:normal'>fviz_dist</i></span>
 function.<o:p></o:p></p>
 
@@ -1553,8 +1553,8 @@ class=NormalTok><span style='color:black;mso-color-alt:windowtext'>))</span></sp
 src="Hierarchical%20clustering%20of%20the%20mtcars%20data_files/image002.jpg"
 v:shapes="_x0000_i1031"><![endif]></span><o:p></o:p></p>
 
-<p class=Compact>Next, let’s perform a hierarchical clustering using the
-distance matrix that we created in the previous step. We’ll then plot the
+<p class=Compact>Next, letÂ’s perform a hierarchical clustering using the
+distance matrix that we created in the previous step. WeÂ’ll then plot the
 dendrogram into four separate clusters.<o:p></o:p></p>
 
 <p class=SourceCode><span class=NormalTok><span style='color:black;mso-color-alt:
@@ -1634,11 +1634,11 @@ style='color:black;mso-color-alt:windowtext'>(<span class=SpellE>sub_grp</span>)
 <p class=SourceCode><span class=VerbatimChar><span style='color:black;
 mso-color-alt:windowtext'>## <span class=SpellE>sub_grp</span></span></span><span
 style='color:black;mso-color-alt:windowtext'><br>
-<span class=VerbatimChar>#<span class=GramE>#<span style='mso-spacerun:yes'> 
-</span>1</span><span style='mso-spacerun:yes'>  </span>2<span
-style='mso-spacerun:yes'>  </span>3<span style='mso-spacerun:yes'>  </span>4 </span><br>
-<span class=VerbatimChar>## 16<span style='mso-spacerun:yes'>  </span>7<span
-style='mso-spacerun:yes'>  </span>6<span style='mso-spacerun:yes'>  </span>3</span></span><o:p></o:p></p>
+<span class=VerbatimChar>#<span class=GramE>#<span style='mso-spacerun:yes'>Â 
+</span>1</span><span style='mso-spacerun:yes'>Â  </span>2<span
+style='mso-spacerun:yes'>Â  </span>3<span style='mso-spacerun:yes'>Â  </span>4 </span><br>
+<span class=VerbatimChar>## 16<span style='mso-spacerun:yes'>Â  </span>7<span
+style='mso-spacerun:yes'>Â  </span>6<span style='mso-spacerun:yes'>Â  </span>3</span></span><o:p></o:p></p>
 
 <p class=SourceCode><span class=GramE><span class=KeywordTok>plot</span><span
 class=NormalTok><span style='color:black;mso-color-alt:windowtext'>(</span></span></span><span
@@ -1670,7 +1670,7 @@ v:shapes="_x0000_i1029"><![endif]></span></p>
 <p class=MsoBodyText><o:p>&nbsp;</o:p></p>
 
 <p class=MsoBodyText>As we can see in our dendrogram, we now have four separate
-clusters (as we specified in our code). Now let’s plot this in an x-y graph.<o:p></o:p></p>
+clusters (as we specified in our code). Now letÂ’s plot this in an x-y graph.<o:p></o:p></p>
 
 <p class=SourceCode><span class=SpellE><span class=KeywordTok>fviz_<span
 class=GramE>cluster</span></span></span><span class=GramE><span
@@ -1691,7 +1691,7 @@ src="Hierarchical%20clustering%20of%20the%20mtcars%20data_files/image005.png"
 v:shapes="_x0000_i1028"><![endif]></span></p>
 
 <p class=Compact>Here we can see the clusters in a two-dimensional plane. Now
-let’s use <span class=SpellE>use</span> the Elbow Method to select the optimal
+letÂ’s use <span class=SpellE>use</span> the Elbow Method to select the optimal
 number of clusters.<o:p></o:p></p>
 
 <p class=SourceCode><span class=SpellE><span class=KeywordTok>fviz_<span
@@ -1715,8 +1715,8 @@ src="Hierarchical%20clustering%20of%20the%20mtcars%20data_files/image006.png"
 v:shapes="_x0000_i1027"><![endif]></span><o:p></o:p></p>
 
 <p class=Compact>Using the Elbow Method, we can see that the optimal number of
-clusters is three. This is because the ‘elbow’ of the curve is at three along
-the x-axis. Now let’s cut the dendrogram at three, as well.<o:p></o:p></p>
+clusters is three. This is because the Â‘elbowÂ’ of the curve is at three along
+the x-axis. Now letÂ’s cut the dendrogram at three, as well.<o:p></o:p></p>
 
 <p class=SourceCode><span class=NormalTok><span style='color:black;mso-color-alt:
 windowtext'>hc5 &lt;-</span></span><span class=StringTok> </span><span
@@ -1743,11 +1743,11 @@ style='color:black;mso-color-alt:windowtext'>(<span class=SpellE>sub_grp</span>)
 <p class=SourceCode><span class=VerbatimChar><span style='color:black;
 mso-color-alt:windowtext'>## <span class=SpellE>sub_grp</span></span></span><span
 style='color:black;mso-color-alt:windowtext'><br>
-<span class=VerbatimChar>#<span class=GramE>#<span style='mso-spacerun:yes'> 
-</span>1</span><span style='mso-spacerun:yes'>  </span>2<span
-style='mso-spacerun:yes'>  </span>3 </span><br>
-<span class=VerbatimChar>## 16<span style='mso-spacerun:yes'>  </span>7<span
-style='mso-spacerun:yes'>  </span>9</span></span><o:p></o:p></p>
+<span class=VerbatimChar>#<span class=GramE>#<span style='mso-spacerun:yes'>Â 
+</span>1</span><span style='mso-spacerun:yes'>Â  </span>2<span
+style='mso-spacerun:yes'>Â  </span>3 </span><br>
+<span class=VerbatimChar>## 16<span style='mso-spacerun:yes'>Â  </span>7<span
+style='mso-spacerun:yes'>Â  </span>9</span></span><o:p></o:p></p>
 
 <p class=SourceCode><span class=GramE><span class=KeywordTok>plot</span><span
 class=NormalTok><span style='color:black;mso-color-alt:windowtext'>(</span></span></span><span
@@ -1776,7 +1776,7 @@ style='color:black;mso-color-alt:windowtext'>)</span></span><o:p></o:p></p>
 src="Hierarchical%20clustering%20of%20the%20mtcars%20data_files/image007.png"
 v:shapes="_x0000_i1026"><![endif]></span></p>
 
-<p class=Compact>Now let’s plot this in a two-dimensional plane.<o:p></o:p></p>
+<p class=Compact>Now letÂ’s plot this in a two-dimensional plane.<o:p></o:p></p>
 
 <p class=SourceCode><span class=SpellE><span class=KeywordTok>fviz_<span
 class=GramE>cluster</span></span></span><span class=GramE><span
