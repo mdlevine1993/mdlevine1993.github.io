@@ -1,6 +1,6 @@
 ## About Me
 
-I'm a graduate student at Temple University pursuing a Master of Science in Business Analytics. I also work full-time as a data analyst for Retail Insights, LLC, a retail data analytics company, where I work as an onsite consultant to AmerisourceBergen's Consumer Products team. 
+I'm a graduate student at the Fox School of Business at Temple University pursuing a Master of Science in Business Analytics. I also work full-time as a data analyst for Retail Insights, LLC, a retail data analytics consulting firm, where I work as an onsite consultant to AmerisourceBergen's Consumer Products team. 
 
 I'm skilled in a number of data science tools and methods, like Excel and VBA; Tableau; R; SQL; linear, multiple, logistic and multinomial regression; ANOVA; machine learning, including random forests; and clustering and segmentation.
 
