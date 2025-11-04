@@ -22,7 +22,17 @@ import json
 import csv
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from apify_client import ApifyClient
+
+# Check for required dependencies
+try:
+    from apify_client import ApifyClient
+except ImportError:
+    print("ERROR: apify-client is not installed!")
+    print("\nPlease install it using:")
+    print("  pip install apify-client")
+    print("\nOr install all dependencies:")
+    print("  pip install apify-client pandas")
+    raise
 
 
 class NYTLatkeRecipeScraper:
@@ -279,6 +289,10 @@ class NYTLatkeRecipeScraper:
 def main():
     """Main entry point for the script."""
     try:
+        # For Spyder users: You can set your API token here directly
+        # Uncomment the line below and add your token:
+        # os.environ['APIFY_API_TOKEN'] = 'your_api_token_here'
+
         scraper = NYTLatkeRecipeScraper()
         recipes = scraper.run()
 
@@ -288,7 +302,11 @@ def main():
         print(f"Error: {e}")
         print("\nTo use this script, you need an Apify API token.")
         print("Get one at: https://console.apify.com/account/integrations")
-        print("\nThen set it as an environment variable:")
+        print("\n=== For Spyder users ===")
+        print("Add this line at the top of main() function (around line 293):")
+        print("  os.environ['APIFY_API_TOKEN'] = 'your_api_token_here'")
+        print("\n=== For terminal users ===")
+        print("Set it as an environment variable:")
         print("  export APIFY_API_TOKEN='your_token_here'")
         return 1
 
@@ -302,4 +320,5 @@ def main():
 
 
 if __name__ == "__main__":
-    exit(main())
+    # Don't use exit() as it can restart Spyder's kernel
+    main()
