@@ -1,0 +1,7 @@
+# Requirements for NY Times Latke Recipe Scraper
+
+# Apify API client for Python
+apify-client>=1.7.0
+
+# For data manipulation and CSV handling (optional, but recommended)
+pandas>=2.0.0
