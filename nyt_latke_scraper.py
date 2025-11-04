@@ -172,10 +172,22 @@ class NYTLatkeRecipeScraper:
 
             # Format ingredients list
             if isinstance(recipe['ingredients'], list):
-                recipe['ingredients_list'] = recipe['ingredients']
-                recipe['ingredients'] = '\n'.join(recipe['ingredients'])
+                # Handle case where ingredients might be dictionaries or strings
+                ingredients_text = []
+                for ing in recipe['ingredients']:
+                    if isinstance(ing, dict):
+                        # Extract text from dictionary (could be 'text', 'ingredient', or the whole dict as string)
+                        text = ing.get('text') or ing.get('ingredient') or str(ing)
+                    else:
+                        text = str(ing)
+                    if text:
+                        ingredients_text.append(text)
+
+                recipe['ingredients_list'] = ingredients_text
+                recipe['ingredients'] = '\n'.join(ingredients_text)
             else:
-                recipe['ingredients_list'] = [recipe['ingredients']]
+                recipe['ingredients_list'] = [str(recipe['ingredients'])]
+                recipe['ingredients'] = str(recipe['ingredients'])
 
             recipes.append(recipe)
 
