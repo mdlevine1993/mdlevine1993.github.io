@@ -287,7 +287,8 @@ JSON Response:"""
         gemini_limiter.wait_if_needed()
 
         # Call Gemini API
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Use 'gemini-pro' for stability (or try 'gemini-1.5-flash-latest' if available)
+        model = genai.GenerativeModel('gemini-pro')
         response = model.generate_content(
             prompt,
             generation_config=genai.GenerationConfig(
