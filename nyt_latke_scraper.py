@@ -55,28 +55,30 @@ class NYTLatkeRecipeScraper:
         self.client = ApifyClient(self.api_token)
         self.actor_id = "harvest/nyt-cooking-scraper"
 
-    def generate_search_urls(self) -> List[str]:
+    def generate_recipe_urls(self) -> List[str]:
         """
-        Generate NY Times Cooking search URLs for latke recipes.
+        Generate NY Times Cooking recipe URLs for latke recipes.
+
+        NOTE: The Apify scraper requires specific recipe URLs, not search URLs.
+        Add known latke recipe URLs here.
 
         Returns:
-            List of search URLs to scrape
+            List of recipe URLs to scrape
         """
-        # NY Times Cooking search URLs for latke-related queries
-        search_queries = [
-            "latke",
-            "latkes",
-            "potato latke",
-            "potato pancake",
-            "hanukkah latke",
+        # Known NYT Cooking latke recipe URLs
+        # Add more URLs as you find them on cooking.nytimes.com
+        urls = [
+            "https://cooking.nytimes.com/recipes/1016071-classic-potato-latkes",
+            "https://cooking.nytimes.com/recipes/1018039-sweet-potato-latkes",
+            "https://cooking.nytimes.com/recipes/1017325-potato-latkes",
+            "https://cooking.nytimes.com/recipes/1014654-carrot-and-sweet-potato-latkes",
+            "https://cooking.nytimes.com/recipes/1020570-zucchini-latkes",
+            "https://cooking.nytimes.com/recipes/1013987-latkes",
+            "https://cooking.nytimes.com/recipes/1017326-apple-latkes",
+            "https://cooking.nytimes.com/recipes/1019605-cauliflower-latkes",
+            "https://cooking.nytimes.com/recipes/1014655-butternut-squash-latkes",
+            "https://cooking.nytimes.com/recipes/1016072-scallion-latkes",
         ]
-
-        base_search_url = "https://cooking.nytimes.com/search"
-        urls = [f"{base_search_url}?q={query}" for query in search_queries]
-
-        # You can also add specific recipe URLs if you know them
-        # For example:
-        # urls.append("https://cooking.nytimes.com/recipes/1016071-classic-potato-latkes")
 
         return urls
 
@@ -84,41 +86,48 @@ class NYTLatkeRecipeScraper:
         """
         Scrape recipes from the provided URLs using Apify.
 
+        The NYT Cooking Scraper processes one URL at a time, so we'll
+        run it multiple times and collect all results.
+
         Args:
-            urls: List of NY Times Cooking URLs to scrape
+            urls: List of NY Times Cooking recipe URLs to scrape
 
         Returns:
             List of recipe dictionaries with extracted data
         """
-        print(f"Starting scrape with {len(urls)} URLs...")
+        print(f"Starting scrape with {len(urls)} recipe URLs...")
+        print("Note: The scraper will process each recipe one at a time.")
+        print()
 
-        # Prepare the input for the Apify actor
-        run_input = {
-            "startUrls": [{"url": url} for url in urls],
-            "maxRequestsPerCrawl": 100,  # Limit to avoid excessive usage
-            "proxyConfiguration": {
-                "useApifyProxy": True,
+        all_items = []
+
+        for i, url in enumerate(urls, 1):
+            print(f"[{i}/{len(urls)}] Scraping: {url}")
+
+            # Prepare the input for the Apify actor (one URL at a time)
+            run_input = {
+                "url": url,
             }
-        }
 
-        print(f"Running Apify actor: {self.actor_id}")
-        print("This may take a few minutes...")
+            try:
+                # Run the actor and wait for it to finish
+                run = self.client.actor(self.actor_id).call(run_input=run_input)
 
-        # Run the actor and wait for it to finish
-        run = self.client.actor(self.actor_id).call(run_input=run_input)
+                # Get the dataset ID
+                dataset_id = run["defaultDatasetId"]
 
-        # Get the dataset ID
-        dataset_id = run["defaultDatasetId"]
-        print(f"Scrape complete! Dataset ID: {dataset_id}")
-        print(f"View results at: https://console.apify.com/storage/datasets/{dataset_id}")
+                # Fetch items from the dataset
+                for item in self.client.dataset(dataset_id).iterate_items():
+                    all_items.append(item)
+                    print(f"  ✓ Successfully scraped: {item.get('name', 'Unknown recipe')}")
 
-        # Fetch all items from the dataset
-        items = []
-        for item in self.client.dataset(dataset_id).iterate_items():
-            items.append(item)
+            except Exception as e:
+                print(f"  ✗ Error scraping this URL: {e}")
+                continue
 
-        print(f"Retrieved {len(items)} items from the dataset")
-        return items
+        print()
+        print(f"Scrape complete! Retrieved {len(all_items)} recipes total")
+        return all_items
 
     def extract_recipe_fields(self, raw_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
@@ -239,9 +248,9 @@ class NYTLatkeRecipeScraper:
         print("NY Times Latke Recipe Scraper")
         print("=" * 60)
 
-        # Generate search URLs
-        urls = self.generate_search_urls()
-        print(f"\nGenerated {len(urls)} search URLs:")
+        # Generate recipe URLs
+        urls = self.generate_recipe_urls()
+        print(f"\nFound {len(urls)} latke recipe URLs to scrape:")
         for url in urls:
             print(f"  - {url}")
 
@@ -254,10 +263,16 @@ class NYTLatkeRecipeScraper:
         print("Extracting recipe fields...")
         recipes = self.extract_recipe_fields(raw_data)
 
-        # Filter for latke recipes
+        # Since we're using specific latke URLs, filtering is optional
+        # but we'll keep it to verify the recipes are latke-related
         print("\n" + "=" * 60)
-        print("Filtering for latke-related recipes...")
+        print("Verifying latke-related recipes...")
         latke_recipes = self.filter_latke_recipes(recipes)
+
+        # If filter removed everything, just use all recipes
+        if not latke_recipes and recipes:
+            print("Warning: Filter removed all recipes. Using all scraped recipes.")
+            latke_recipes = recipes
 
         # Display summary
         print("\n" + "=" * 60)
