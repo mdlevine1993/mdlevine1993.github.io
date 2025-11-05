@@ -648,6 +648,236 @@ def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
 
     return records
 
+# ========== HathiTrust Digital Library (GEMINI-POWERED) ==========
+
+def hathitrust_search() -> List[Dict]:
+    """Search HathiTrust for Jewish cookbooks"""
+    # HathiTrust Bib API search
+    all_items = []
+
+    try:
+        base_url = "https://catalog.hathitrust.org/api/volumes/brief/json/"
+
+        # Search for known cookbooks in HathiTrust
+        search_terms = [
+            'settlement+cookbook',
+            'aunt+babette+cookbook',
+            'jewish+cooking',
+            'kosher+cookbook'
+        ]
+
+        for term in search_terms:
+            try:
+                # HathiTrust requires specific ISBN/OCLC lookups
+                # This is a simplified implementation - full implementation would need OCLC numbers
+                logger.debug(f"HathiTrust search: {term}")
+                # Note: HathiTrust requires institutional access for full text
+                # Keeping as placeholder for future implementation
+                pass
+            except Exception as e:
+                logger.debug(f"HathiTrust search error for {term}: {e}")
+
+        logger.info(f"HathiTrust: {len(all_items)} items (requires institutional access for full implementation)")
+    except Exception as e:
+        logger.error(f"HathiTrust error: {e}")
+
+    return all_items
+
+# ========== Project Gutenberg (GEMINI-POWERED) ==========
+
+def gutenberg_search() -> List[Dict]:
+    """Search Project Gutenberg for Jewish cookbooks"""
+    all_items = []
+
+    try:
+        # Project Gutenberg catalog search
+        # Note: Few Jewish cookbooks in PG as most are not yet public domain
+        base_url = "https://www.gutenberg.org/ebooks/search/"
+
+        search_params = {
+            'query': 'jewish cookbook OR kosher cooking',
+            'submit_search': 'Go'
+        }
+
+        logger.info("Searching Project Gutenberg...")
+        # Most Jewish cookbooks are post-1928 and not in PG yet
+        # Placeholder for manual additions of specific PG book IDs
+        known_pg_ids = []  # Add specific Gutenberg IDs if found
+
+        for pg_id in known_pg_ids:
+            all_items.append({
+                'identifier': f'pg{pg_id}',
+                'title': f'Project Gutenberg Book {pg_id}',
+                'text_url': f'https://www.gutenberg.org/cache/epub/{pg_id}/pg{pg_id}.txt'
+            })
+
+        logger.info(f"Project Gutenberg: {len(all_items)} items (few Jewish cookbooks in public domain)")
+    except Exception as e:
+        logger.error(f"Project Gutenberg error: {e}")
+
+    return all_items
+
+def gutenberg_extract_recipes(item: Dict) -> List[Dict]:
+    """Extract recipes from Project Gutenberg book"""
+    if progress.is_processed('project_gutenberg', item['identifier']):
+        return []
+
+    records = []
+
+    try:
+        # Download plain text
+        r = fetch(item['text_url'], timeout=60)
+        if not r or not r.text:
+            progress.mark_processed('project_gutenberg', item['identifier'], 0)
+            return []
+
+        full_text = r.text
+
+        # Check for latke terms
+        has_latke_mention = re.search(LATKE_PATTERN, full_text, re.I)
+        if not has_latke_mention:
+            logger.info(f"  {item['identifier']}: No latke mentions")
+            progress.mark_processed('project_gutenberg', item['identifier'], 0)
+            return []
+
+        # Use Gemini to extract
+        logger.info(f"  Using Gemini to parse {item['identifier']}...")
+        gemini_recipes = extract_recipes_with_gemini(full_text, item['title'])
+
+        for i, recipe_data in enumerate(gemini_recipes):
+            ingredients = '\n'.join(recipe_data.get('ingredients', []))
+            instructions = '\n'.join(recipe_data.get('instructions', []))
+
+            recipe = {
+                "source": "project_gutenberg",
+                "legality_tier": "public_domain_full_text",
+                "site": "gutenberg.org",
+                "year": 1900,  # Would extract from metadata
+                "title": recipe_data.get('title', 'Latke Recipe'),
+                "ingredients_raw": ingredients,
+                "instructions_raw": instructions,
+                "url": item['text_url'],
+                "author": "Unknown",
+                "publisher": "Project Gutenberg",
+                "book_id": item['identifier'],
+                "country": "US"
+            }
+
+            is_valid, reason = validate_recipe_data(recipe)
+            if is_valid:
+                recipe['quality_score'] = 0.8
+                records.append(recipe)
+
+        progress.mark_processed('project_gutenberg', item['identifier'], len(records))
+        if records:
+            logger.info(f"✓ {item['identifier']}: {len(records)} recipes")
+
+    except Exception as e:
+        logger.error(f"Error processing {item['identifier']}: {e}")
+        progress.mark_processed('project_gutenberg', item['identifier'], 0)
+
+    return records
+
+# ========== Chronicling America / Library of Congress (GEMINI-POWERED) ==========
+
+def chronicling_america_search() -> List[Dict]:
+    """Search Chronicling America for latke mentions in historical newspapers"""
+    all_items = []
+
+    try:
+        base_url = "https://chroniclingamerica.loc.gov/search/pages/results/"
+
+        # Search for latke terms in historical newspapers
+        for term in ['latke', 'latkes', 'potato+pancake']:
+            try:
+                params = {
+                    'andtext': term,
+                    'format': 'json',
+                    'page': 1
+                }
+
+                logger.debug(f"Chronicling America search: {term}")
+                r = fetch(base_url, params=params, timeout=30)
+
+                if r and r.status_code == 200:
+                    data = r.json()
+                    items = data.get('items', [])
+                    all_items.extend(items[:20])  # Limit results
+
+                time.sleep(1)  # Be polite to LOC servers
+
+            except Exception as e:
+                logger.debug(f"Chronicling America search error for {term}: {e}")
+
+        logger.info(f"Chronicling America: {len(all_items)} newspaper pages found")
+    except Exception as e:
+        logger.error(f"Chronicling America error: {e}")
+
+    return all_items
+
+def chronicling_america_extract_recipes(item: Dict) -> List[Dict]:
+    """Extract recipes from Chronicling America newspaper page"""
+    page_url = item.get('id', '')
+    if not page_url or progress.is_processed('chronicling_america', page_url):
+        return []
+
+    records = []
+
+    try:
+        # Get OCR text from newspaper page
+        text_url = page_url.replace('/seq-', '/ocr/') if '/seq-' in page_url else page_url + '/ocr/'
+
+        r = fetch(text_url, timeout=30)
+        if not r or not r.text or len(r.text) < 200:
+            progress.mark_processed('chronicling_america', page_url, 0)
+            return []
+
+        ocr_text = r.text
+
+        # Check for latke terms
+        has_latke_mention = re.search(LATKE_PATTERN, ocr_text, re.I)
+        if not has_latke_mention:
+            progress.mark_processed('chronicling_america', page_url, 0)
+            return []
+
+        # Use Gemini to extract
+        logger.info(f"  Using Gemini to parse newspaper page...")
+        gemini_recipes = extract_recipes_with_gemini(ocr_text, f"Chronicling America - {item.get('title', 'Newspaper')}")
+
+        for i, recipe_data in enumerate(gemini_recipes):
+            ingredients = '\n'.join(recipe_data.get('ingredients', []))
+            instructions = '\n'.join(recipe_data.get('instructions', []))
+
+            recipe = {
+                "source": "chronicling_america",
+                "legality_tier": "public_domain_full_text",
+                "site": "chroniclingamerica.loc.gov",
+                "year": item.get('date', '1900-01-01')[:4],
+                "title": recipe_data.get('title', 'Latke Recipe from Newspaper'),
+                "ingredients_raw": ingredients,
+                "instructions_raw": instructions,
+                "url": page_url,
+                "author": item.get('title', 'Unknown Newspaper'),
+                "publisher": "Library of Congress",
+                "book_id": page_url.split('/')[-2] if '/' in page_url else page_url,
+                "country": "US"
+            }
+
+            is_valid, reason = validate_recipe_data(recipe)
+            if is_valid:
+                recipe['quality_score'] = 0.7  # Newspaper recipes may be less detailed
+                records.append(recipe)
+
+        progress.mark_processed('chronicling_america', page_url, len(records))
+        if records:
+            logger.info(f"✓ Newspaper page: {len(records)} recipes")
+
+    except Exception as e:
+        logger.error(f"Error processing newspaper page: {e}")
+        progress.mark_processed('chronicling_america', page_url, 0)
+
+    return records
+
 # ========== Modern Recipe Sites (JSON-LD - NO LLM NEEDED) ==========
 
 # All your modern URLs from before
@@ -924,6 +1154,62 @@ def build_corpus_with_gemini():
 
     except Exception as e:
         logger.error(f"Internet Archive error: {e}", exc_info=True)
+
+    # Phase 3: HathiTrust (GEMINI)
+    logger.info("\n" + "="*80)
+    logger.info("PHASE 3: HathiTrust Digital Library (Gemini AI)")
+    logger.info("="*80)
+
+    try:
+        ht_items = hathitrust_search()
+        # HathiTrust requires institutional access - implementation incomplete
+        logger.info("HathiTrust: Skipping (requires institutional access)")
+    except Exception as e:
+        logger.error(f"HathiTrust error: {e}")
+
+    # Phase 4: Project Gutenberg (GEMINI)
+    logger.info("\n" + "="*80)
+    logger.info("PHASE 4: Project Gutenberg (Gemini AI)")
+    logger.info("="*80)
+
+    try:
+        pg_items = gutenberg_search()
+        if pg_items:
+            logger.info(f"Processing {len(pg_items)} Project Gutenberg items...")
+            for item in pg_items:
+                recipes = gutenberg_extract_recipes(item)
+                all_recipes.extend(recipes)
+                progress.save()
+
+                if gemini_limiter.daily_count >= GEMINI_DAILY_LIMIT * 0.95:
+                    logger.warning("⚠️  Approaching Gemini daily limit - stopping PG processing")
+                    break
+        else:
+            logger.info("No Project Gutenberg items found (most Jewish cookbooks not yet public domain)")
+    except Exception as e:
+        logger.error(f"Project Gutenberg error: {e}")
+
+    # Phase 5: Chronicling America / LOC (GEMINI)
+    logger.info("\n" + "="*80)
+    logger.info("PHASE 5: Chronicling America - Library of Congress (Gemini AI)")
+    logger.info("="*80)
+
+    try:
+        ca_items = chronicling_america_search()
+        if ca_items:
+            logger.info(f"Processing {len(ca_items)} newspaper pages...")
+            for item in ca_items[:30]:  # Limit to 30 newspaper pages
+                recipes = chronicling_america_extract_recipes(item)
+                all_recipes.extend(recipes)
+                progress.save()
+
+                if gemini_limiter.daily_count >= GEMINI_DAILY_LIMIT * 0.95:
+                    logger.warning("⚠️  Approaching Gemini daily limit - stopping CA processing")
+                    break
+        else:
+            logger.info("No Chronicling America pages found")
+    except Exception as e:
+        logger.error(f"Chronicling America error: {e}")
 
     # Deduplication
     logger.info("\n" + "="*80)
