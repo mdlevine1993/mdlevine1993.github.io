@@ -488,21 +488,53 @@ def ia_search_comprehensive() -> List[Dict]:
 def ia_get_full_text(identifier: str) -> Optional[str]:
     """Get full text from Internet Archive"""
 
-    methods = [
-        f"https://archive.org/download/{identifier}/{identifier}_djvu.txt",
-        f"https://archive.org/download/{identifier}/{identifier}.txt",
-        f"https://archive.org/stream/{identifier}/{identifier}_djvu.txt",
+    # First, get metadata to find available text files
+    try:
+        metadata_url = f"https://archive.org/metadata/{identifier}"
+        r = fetch(metadata_url, timeout=30)
+        if r and r.status_code == 200:
+            metadata = r.json()
+            files = metadata.get('files', [])
+
+            # Look for text files in the metadata
+            text_files = []
+            for file in files:
+                name = file.get('name', '').lower()
+                if name.endswith('.txt') or '_djvu.txt' in name or '_text.txt' in name:
+                    text_files.append(file.get('name'))
+
+            # Try each text file found
+            for filename in text_files:
+                url = f"https://archive.org/download/{identifier}/{filename}"
+                try:
+                    r = fetch(url, timeout=60)
+                    if r and r.text and len(r.text) > 500 and not r.text.startswith('<html'):
+                        logger.debug(f"✓ Got text from {identifier} using {filename}")
+                        return r.text
+                except:
+                    continue
+    except Exception as e:
+        logger.debug(f"Metadata lookup failed for {identifier}: {e}")
+
+    # Fallback: Try common patterns
+    fallback_patterns = [
+        f"{identifier}_djvu.txt",
+        f"{identifier}.txt",
+        f"{identifier}_text.txt",
+        f"{identifier}_abbyy.gz",  # Some have compressed ABBYY XML
     ]
 
-    for url in methods:
+    for filename in fallback_patterns:
+        url = f"https://archive.org/download/{identifier}/{filename}"
         try:
             r = fetch(url, timeout=60)
-            if r and r.text and len(r.text) > 500:
-                logger.debug(f"✓ Got text from {identifier}")
+            if r and r.text and len(r.text) > 500 and not r.text.startswith('<html'):
+                logger.debug(f"✓ Got text from {identifier} using fallback {filename}")
                 return r.text
         except:
             continue
 
+    logger.debug(f"✗ Could not get text for {identifier}")
     return None
 
 def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
