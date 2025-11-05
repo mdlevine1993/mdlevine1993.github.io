@@ -521,13 +521,7 @@ def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
             progress.mark_processed('internet_archive', identifier, 0)
             return []
 
-        # Check if it even mentions latkes
-        if not re.search(r'\blatke|potato pancake\b', full_text, re.I):
-            logger.info(f"  {identifier}: No latke mentions, skipping")
-            progress.mark_processed('internet_archive', identifier, 0)
-            return []
-
-        # Extract metadata
+        # Extract metadata early (needed for filtering)
         title = metadata.get("title", "Unknown")
         year = extract_year(metadata.get("year") or metadata.get("date"))
 
@@ -536,6 +530,26 @@ def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
 
         publisher = metadata.get("publisher", [])
         publisher = publisher[0] if isinstance(publisher, list) and publisher else (publisher or "")
+
+        # For known important cookbooks, always process even if no latke mentions
+        # (OCR quality issues might cause false negatives)
+        known_cookbooks = [
+            'settlement', 'babette', 'hadassah', 'jewish manual',
+            'greenstein', 'levy', 'goldberg', 'nathan'
+        ]
+        is_known_cookbook = any(name in identifier.lower() or name in title.lower()
+                                for name in known_cookbooks)
+
+        # Check if it mentions latkes (but skip check for known cookbooks)
+        has_latke_mention = re.search(r'\blatke|potato pancake\b', full_text, re.I)
+
+        if not has_latke_mention and not is_known_cookbook:
+            logger.info(f"  {identifier}: No latke mentions, skipping")
+            progress.mark_processed('internet_archive', identifier, 0)
+            return []
+
+        if is_known_cookbook and not has_latke_mention:
+            logger.info(f"  {identifier}: Known cookbook, processing despite no latke mentions")
 
         # Use Gemini to extract recipes
         logger.info(f"  Using Gemini to parse {identifier}...")
