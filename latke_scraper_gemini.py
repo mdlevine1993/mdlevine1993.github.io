@@ -690,28 +690,31 @@ def gutenberg_search() -> List[Dict]:
     all_items = []
 
     try:
-        # Project Gutenberg catalog search
-        # Note: Few Jewish cookbooks in PG as most are not yet public domain
-        base_url = "https://www.gutenberg.org/ebooks/search/"
-
-        search_params = {
-            'query': 'jewish cookbook OR kosher cooking',
-            'submit_search': 'Go'
-        }
-
         logger.info("Searching Project Gutenberg...")
-        # Most Jewish cookbooks are post-1928 and not in PG yet
-        # Placeholder for manual additions of specific PG book IDs
-        known_pg_ids = []  # Add specific Gutenberg IDs if found
 
-        for pg_id in known_pg_ids:
+        # Known Jewish cookbooks in Project Gutenberg
+        # These are manually verified to be available and relevant
+        known_cookbooks = [
+            {
+                'id': 12350,
+                'title': 'The International Jewish Cook Book',
+                'author': 'Florence Kreisler Greenbaum',
+                'year': 1919
+            },
+            # Add more as discovered - search at https://www.gutenberg.org/ebooks/bookshelf/49
+        ]
+
+        for book in known_cookbooks:
+            pg_id = book['id']
             all_items.append({
                 'identifier': f'pg{pg_id}',
-                'title': f'Project Gutenberg Book {pg_id}',
+                'title': book['title'],
+                'author': book['author'],
+                'year': book['year'],
                 'text_url': f'https://www.gutenberg.org/cache/epub/{pg_id}/pg{pg_id}.txt'
             })
 
-        logger.info(f"Project Gutenberg: {len(all_items)} items (few Jewish cookbooks in public domain)")
+        logger.info(f"Project Gutenberg: {len(all_items)} known Jewish cookbooks")
     except Exception as e:
         logger.error(f"Project Gutenberg error: {e}")
 
@@ -752,12 +755,12 @@ def gutenberg_extract_recipes(item: Dict) -> List[Dict]:
                 "source": "project_gutenberg",
                 "legality_tier": "public_domain_full_text",
                 "site": "gutenberg.org",
-                "year": 1900,  # Would extract from metadata
+                "year": item.get('year', 1900),
                 "title": recipe_data.get('title', 'Latke Recipe'),
                 "ingredients_raw": ingredients,
                 "instructions_raw": instructions,
                 "url": item['text_url'],
-                "author": "Unknown",
+                "author": item.get('author', 'Unknown'),
                 "publisher": "Project Gutenberg",
                 "book_id": item['identifier'],
                 "country": "US"
@@ -785,31 +788,30 @@ def chronicling_america_search() -> List[Dict]:
     all_items = []
 
     try:
-        base_url = "https://chroniclingamerica.loc.gov/search/pages/results/"
+        # NOTE: Chronicling America API has been migrated/changed as of 2025
+        # The old endpoint chroniclingamerica.loc.gov now redirects to www.loc.gov
+        # and the API structure appears to have changed or is temporarily unavailable
+        #
+        # Disabling for now until the new API is documented/stable
+        # See: https://chroniclingamerica.loc.gov/about/api/
 
-        # Search for latke terms in historical newspapers
-        for term in ['latke', 'latkes', 'potato+pancake']:
-            try:
-                params = {
-                    'andtext': term,
-                    'format': 'json',
-                    'page': 1
-                }
+        logger.info("Chronicling America: API currently unavailable (endpoint changed)")
+        return []
 
-                logger.debug(f"Chronicling America search: {term}")
-                r = fetch(base_url, params=params, timeout=30)
-
-                if r and r.status_code == 200:
-                    data = r.json()
-                    items = data.get('items', [])
-                    all_items.extend(items[:20])  # Limit results
-
-                time.sleep(1)  # Be polite to LOC servers
-
-            except Exception as e:
-                logger.debug(f"Chronicling America search error for {term}: {e}")
-
-        logger.info(f"Chronicling America: {len(all_items)} newspaper pages found")
+        # Original code commented out - may work again when API is fixed
+        # base_url = "https://chroniclingamerica.loc.gov/search/pages/results/"
+        # for term in ['latke', 'latkes', 'potato+pancake']:
+        #     try:
+        #         params = {'andtext': term, 'format': 'json', 'page': 1}
+        #         logger.debug(f"Chronicling America search: {term}")
+        #         r = fetch(base_url, params=params, timeout=30)
+        #         if r and r.status_code == 200:
+        #             data = r.json()
+        #             items = data.get('items', [])
+        #             all_items.extend(items[:20])
+        #         time.sleep(1)
+        #     except Exception as e:
+        #         logger.debug(f"Chronicling America search error for {term}: {e}")
     except Exception as e:
         logger.error(f"Chronicling America error: {e}")
 
