@@ -648,41 +648,6 @@ def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
 
     return records
 
-# ========== HathiTrust Digital Library (GEMINI-POWERED) ==========
-
-def hathitrust_search() -> List[Dict]:
-    """Search HathiTrust for Jewish cookbooks"""
-    # HathiTrust Bib API search
-    all_items = []
-
-    try:
-        base_url = "https://catalog.hathitrust.org/api/volumes/brief/json/"
-
-        # Search for known cookbooks in HathiTrust
-        search_terms = [
-            'settlement+cookbook',
-            'aunt+babette+cookbook',
-            'jewish+cooking',
-            'kosher+cookbook'
-        ]
-
-        for term in search_terms:
-            try:
-                # HathiTrust requires specific ISBN/OCLC lookups
-                # This is a simplified implementation - full implementation would need OCLC numbers
-                logger.debug(f"HathiTrust search: {term}")
-                # Note: HathiTrust requires institutional access for full text
-                # Keeping as placeholder for future implementation
-                pass
-            except Exception as e:
-                logger.debug(f"HathiTrust search error for {term}: {e}")
-
-        logger.info(f"HathiTrust: {len(all_items)} items (requires institutional access for full implementation)")
-    except Exception as e:
-        logger.error(f"HathiTrust error: {e}")
-
-    return all_items
-
 # ========== Project Gutenberg (GEMINI-POWERED) ==========
 
 def gutenberg_search() -> List[Dict]:
@@ -1189,21 +1154,9 @@ def build_corpus_with_gemini():
     except Exception as e:
         logger.error(f"Internet Archive error: {e}", exc_info=True)
 
-    # Phase 3: HathiTrust (GEMINI)
+    # Phase 3: Project Gutenberg (GEMINI)
     logger.info("\n" + "="*80)
-    logger.info("PHASE 3: HathiTrust Digital Library (Gemini AI)")
-    logger.info("="*80)
-
-    try:
-        ht_items = hathitrust_search()
-        # HathiTrust requires institutional access - implementation incomplete
-        logger.info("HathiTrust: Skipping (requires institutional access)")
-    except Exception as e:
-        logger.error(f"HathiTrust error: {e}")
-
-    # Phase 4: Project Gutenberg (GEMINI)
-    logger.info("\n" + "="*80)
-    logger.info("PHASE 4: Project Gutenberg (Gemini AI)")
+    logger.info("PHASE 3: Project Gutenberg (Gemini AI)")
     logger.info("="*80)
 
     try:
@@ -1223,9 +1176,9 @@ def build_corpus_with_gemini():
     except Exception as e:
         logger.error(f"Project Gutenberg error: {e}")
 
-    # Phase 5: Chronicling America / LOC (GEMINI)
+    # Phase 4: Chronicling America / LOC (GEMINI)
     logger.info("\n" + "="*80)
-    logger.info("PHASE 5: Chronicling America - Library of Congress (Gemini AI)")
+    logger.info("PHASE 4: Chronicling America - Library of Congress (Gemini AI)")
     logger.info("="*80)
 
     try:
