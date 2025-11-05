@@ -54,6 +54,18 @@ PROGRESS_FILE = "latke_corpus_progress_gemini.json"
 GEMINI_RPM_LIMIT = 15  # Requests per minute (free tier)
 GEMINI_DAILY_LIMIT = 1500  # Requests per day (free tier)
 
+# Latke terminology - English, Yiddish, and Hebrew terms (early 1900s to present)
+LATKE_TERMS = [
+    'latke', 'latkes',
+    'fasputshe', 'fasputshes',
+    'pontshke', 'pontshkes',
+    'levivot', 'levivots',
+    'gretchene', 'gretchenes',
+    'potato pancake', 'potato pancakes'
+]
+# Compile regex pattern for efficient searching
+LATKE_PATTERN = r'\b(' + '|'.join(re.escape(term) for term in LATKE_TERMS) + r')\b'
+
 BROWSER_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -236,8 +248,8 @@ def extract_recipes_with_gemini(ocr_text: str, source_title: str = "", max_chars
 
     # Truncate if too long (keep middle section where recipes likely are)
     if len(ocr_text) > max_chars:
-        # Look for "latke" mentions and extract around them
-        latke_positions = [m.start() for m in re.finditer(r'\blatke|potato pancake\b', ocr_text, re.I)]
+        # Look for latke term mentions and extract around them
+        latke_positions = [m.start() for m in re.finditer(LATKE_PATTERN, ocr_text, re.I)]
 
         if latke_positions:
             # Take text around first latke mention
@@ -248,13 +260,17 @@ def extract_recipes_with_gemini(ocr_text: str, source_title: str = "", max_chars
             # Just take first chunk
             ocr_text = ocr_text[:max_chars]
 
-    # Prepare prompt
-    prompt = f"""You are a recipe extraction expert. Extract ALL latke (potato pancake) recipes from the following OCR text from a historical cookbook.
+    # Prepare prompt with all historical terms
+    terms_list = ', '.join(LATKE_TERMS)
+    prompt = f"""You are a recipe extraction expert. Extract ALL latke/potato pancake recipes from the following OCR text from a historical cookbook.
 
 Source: {source_title}
 
-For each latke recipe found, extract:
-1. Recipe title/name
+IMPORTANT: Look for recipes under ANY of these names (historical Yiddish, Hebrew, and English terms):
+{terms_list}
+
+For each recipe found, extract:
+1. Recipe title/name (as it appears in the text)
 2. Ingredients list (each ingredient as a separate item)
 3. Instructions/directions (step by step)
 
@@ -270,10 +286,11 @@ Return ONLY valid JSON in this exact format:
 }}
 
 Important rules:
-- Only extract recipes for LATKES or POTATO PANCAKES (not other potato dishes)
-- Skip recipes that are clearly NOT latkes (e.g., potato soup, mashed potatoes)
-- If no latke recipes found, return: {{"recipes": []}}
-- Keep ingredients and instructions as they appear in the text
+- Extract recipes that match ANY of the terms above (latke, fasputshe, pontshke, levivot, gretchene, potato pancake, etc.)
+- These are all different names for the same dish - fried potato pancakes
+- Skip recipes that are clearly NOT potato pancakes (e.g., potato soup, mashed potatoes, kugel)
+- If no matching recipes found, return: {{"recipes": []}}
+- Keep ingredients and instructions exactly as they appear in the text
 - Do NOT make up or invent recipes
 - Return ONLY the JSON, no other text
 
@@ -394,9 +411,10 @@ def ia_search_comprehensive() -> List[Dict]:
         'subject:"Cooking, Jewish" AND mediatype:texts',
         'subject:(kosher) AND subject:(cookery OR cookbook OR cooking) AND mediatype:texts',
 
-        # Cookbook-specific searches with latke in fulltext
-        'subject:(cookbook OR cookery) AND fulltext:(latke OR latkes) AND mediatype:texts',
-        'title:(cookbook OR cookery OR cooking) AND fulltext:(potato pancake) AND mediatype:texts',
+        # Cookbook-specific searches with latke terms in fulltext (English, Yiddish, Hebrew)
+        'subject:(cookbook OR cookery) AND fulltext:(latke OR latkes OR fasputshe OR pontshke OR levivot OR gretchene) AND mediatype:texts',
+        'title:(cookbook OR cookery OR cooking) AND fulltext:(potato pancake OR potato pancakes) AND mediatype:texts',
+        'subject:(cookbook OR cookery) AND (jewish OR kosher) AND fulltext:(levivot OR levivots) AND mediatype:texts',
 
         # Jewish cookbooks by time period
         'subject:"Jewish cookery" AND year:[1890 TO 1920] AND mediatype:texts',
@@ -572,16 +590,16 @@ def ia_extract_recipes_gemini(identifier: str, metadata: Dict) -> List[Dict]:
         is_known_cookbook = any(name in identifier.lower() or name in title.lower()
                                 for name in known_cookbooks)
 
-        # Check if it mentions latkes (but skip check for known cookbooks)
-        has_latke_mention = re.search(r'\blatke|potato pancake\b', full_text, re.I)
+        # Check if it mentions any latke terms (but skip check for known cookbooks)
+        has_latke_mention = re.search(LATKE_PATTERN, full_text, re.I)
 
         if not has_latke_mention and not is_known_cookbook:
-            logger.info(f"  {identifier}: No latke mentions, skipping")
+            logger.info(f"  {identifier}: No latke term mentions, skipping")
             progress.mark_processed('internet_archive', identifier, 0)
             return []
 
         if is_known_cookbook and not has_latke_mention:
-            logger.info(f"  {identifier}: Known cookbook, processing despite no latke mentions")
+            logger.info(f"  {identifier}: Known cookbook, processing despite no latke term mentions")
 
         # Use Gemini to extract recipes
         logger.info(f"  Using Gemini to parse {identifier}...")
