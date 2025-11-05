@@ -382,13 +382,28 @@ def ia_search_comprehensive() -> List[Dict]:
     all_items = []
 
     queries = [
-        'subject:"Jewish cookery" AND mediatype:texts AND language:eng',
-        'title:(jewish cookbook) AND mediatype:texts AND year:[1890 TO 1960]',
-        '(latke OR latkes) AND mediatype:texts',
-        'fulltext:(potato latke) AND mediatype:texts',
-        'subject:(kosher) AND cookbook AND mediatype:texts',
+        # Specific known historical Jewish cookbooks
         'title:(settlement cookbook) AND mediatype:texts',
         'creator:("Aunt Babette") AND mediatype:texts',
+        'title:("The Jewish Manual") AND mediatype:texts',
+        'title:(hadassah cookbook) AND mediatype:texts',
+        'title:("The Art of Jewish Cooking") AND mediatype:texts',
+
+        # Subject-based queries (more reliable than fulltext)
+        'subject:"Jewish cookery" AND mediatype:texts AND language:eng',
+        'subject:"Cooking, Jewish" AND mediatype:texts',
+        'subject:(kosher) AND subject:(cookery OR cookbook OR cooking) AND mediatype:texts',
+
+        # Cookbook-specific searches with latke in fulltext
+        'subject:(cookbook OR cookery) AND fulltext:(latke OR latkes) AND mediatype:texts',
+        'title:(cookbook OR cookery OR cooking) AND fulltext:(potato pancake) AND mediatype:texts',
+
+        # Jewish cookbooks by time period
+        'subject:"Jewish cookery" AND year:[1890 TO 1920] AND mediatype:texts',
+        'subject:"Jewish cookery" AND year:[1920 TO 1960] AND mediatype:texts',
+
+        # Exclude children's books explicitly
+        '(subject:cookery OR subject:cookbook) AND (jewish OR kosher) AND NOT subject:juvenile AND NOT subject:"children\'s literature" AND mediatype:texts',
     ]
 
     for query in queries:
@@ -421,16 +436,53 @@ def ia_search_comprehensive() -> List[Dict]:
                 logger.error(f"IA search error: {e}")
                 break
 
-    # Deduplicate
+    # Filter out non-cookbook content
+    def is_likely_cookbook(item: Dict) -> bool:
+        """Filter out children's books, fiction, and non-cookbook content"""
+        identifier = item.get("identifier", "").lower()
+        title = item.get("title", "").lower()
+
+        # Exclude children's books and fiction
+        exclude_patterns = [
+            "0000",  # Modern children's book identifiers (e.g., hanukkahlatkesro0000schw)
+            "juvenile", "children", "picture book", "story", "tale",
+            "cia-readingroom", "judgment", "judgement", "court",
+            "magazine", "periodical", "journal",
+            "grandma", "papa", "bubbe",  # Common in children's story titles
+        ]
+
+        for pattern in exclude_patterns:
+            if pattern in identifier or pattern in title:
+                logger.debug(f"Filtered out: {identifier} (matched: {pattern})")
+                return False
+
+        # Require cookbook-related terms in title OR identifier
+        cookbook_indicators = [
+            "cookbook", "cookery", "cook book", "cooking", "recipe",
+            "kitchen", "culinary", "manual", "settlement", "hadassah"
+        ]
+
+        has_cookbook_indicator = any(
+            indicator in title or indicator in identifier
+            for indicator in cookbook_indicators
+        )
+
+        if not has_cookbook_indicator:
+            logger.debug(f"Filtered out: {identifier} (no cookbook indicator)")
+            return False
+
+        return True
+
+    # Deduplicate and filter
     seen = set()
     unique_items = []
     for item in all_items:
         ident = item.get("identifier")
-        if ident and ident not in seen:
+        if ident and ident not in seen and is_likely_cookbook(item):
             seen.add(ident)
             unique_items.append(item)
 
-    logger.info(f"Found {len(unique_items)} unique Internet Archive items")
+    logger.info(f"Found {len(unique_items)} unique Internet Archive cookbooks (filtered from {len(all_items)} total)")
     return unique_items
 
 def ia_get_full_text(identifier: str) -> Optional[str]:
