@@ -788,63 +788,95 @@ def chronicling_america_search() -> List[Dict]:
     all_items = []
 
     try:
-        # NOTE: Chronicling America API has been migrated/changed as of 2025
-        # The old endpoint chroniclingamerica.loc.gov now redirects to www.loc.gov
-        # and the API structure appears to have changed or is temporarily unavailable
-        #
-        # Disabling for now until the new API is documented/stable
-        # See: https://chroniclingamerica.loc.gov/about/api/
+        # Updated endpoint as of 2025 - migrated to www.loc.gov
+        base_url = "https://www.loc.gov/collections/chronicling-america/"
 
-        logger.info("Chronicling America: API currently unavailable (endpoint changed)")
-        return []
+        # Search for latke terms in historical newspapers
+        for term in ['latke', 'latkes', 'potato pancake']:
+            try:
+                params = {
+                    'q': term,
+                    'fo': 'json',
+                    'c': 20  # Limit to 20 results per term
+                }
 
-        # Original code commented out - may work again when API is fixed
-        # base_url = "https://chroniclingamerica.loc.gov/search/pages/results/"
-        # for term in ['latke', 'latkes', 'potato+pancake']:
-        #     try:
-        #         params = {'andtext': term, 'format': 'json', 'page': 1}
-        #         logger.debug(f"Chronicling America search: {term}")
-        #         r = fetch(base_url, params=params, timeout=30)
-        #         if r and r.status_code == 200:
-        #             data = r.json()
-        #             items = data.get('items', [])
-        #             all_items.extend(items[:20])
-        #         time.sleep(1)
-        #     except Exception as e:
-        #         logger.debug(f"Chronicling America search error for {term}: {e}")
+                logger.debug(f"Chronicling America search: {term}")
+                r = fetch(base_url, params=params, timeout=60)
+
+                if r and r.status_code == 200:
+                    data = r.json()
+                    results = data.get('results', [])
+                    all_items.extend(results)
+                    logger.debug(f"  Found {len(results)} pages for '{term}'")
+
+                time.sleep(1)  # Be polite to LOC servers
+
+            except Exception as e:
+                logger.debug(f"Chronicling America search error for {term}: {e}")
+
+        # Deduplicate by page ID
+        seen_ids = set()
+        unique_items = []
+        for item in all_items:
+            page_id = item.get('id') or item.get('url')
+            if page_id and page_id not in seen_ids:
+                seen_ids.add(page_id)
+                unique_items.append(item)
+
+        logger.info(f"Chronicling America: {len(unique_items)} unique newspaper pages found")
     except Exception as e:
         logger.error(f"Chronicling America error: {e}")
 
-    return all_items
+    return unique_items
 
 def chronicling_america_extract_recipes(item: Dict) -> List[Dict]:
     """Extract recipes from Chronicling America newspaper page"""
-    page_url = item.get('id', '')
+    page_url = item.get('id') or item.get('url', '')
     if not page_url or progress.is_processed('chronicling_america', page_url):
         return []
 
     records = []
 
     try:
-        # Get OCR text from newspaper page
-        text_url = page_url.replace('/seq-', '/ocr/') if '/seq-' in page_url else page_url + '/ocr/'
+        # First, try using the description field (has some OCR text)
+        ocr_text = ''
+        description = item.get('description', [])
+        if isinstance(description, list):
+            ocr_text = ' '.join(description)
+        elif isinstance(description, str):
+            ocr_text = description
 
-        r = fetch(text_url, timeout=30)
-        if not r or not r.text or len(r.text) < 200:
+        # If description is too short, try fetching full OCR
+        if len(ocr_text) < 500:
+            # Try to get OCR from the resource URL
+            # Format: https://www.loc.gov/resource/sn89064914/1923-08-02/ed-1/?sp=6
+            # OCR might be at: https://tile.loc.gov/storage-services/service/ndnp/.../ocr.txt
+            # For now, use description if available
+            logger.debug(f"  Using description field ({len(ocr_text)} chars)")
+
+        if len(ocr_text) < 200:
+            logger.debug(f"  Text too short ({len(ocr_text)} chars), skipping")
             progress.mark_processed('chronicling_america', page_url, 0)
             return []
-
-        ocr_text = r.text
 
         # Check for latke terms
         has_latke_mention = re.search(LATKE_PATTERN, ocr_text, re.I)
         if not has_latke_mention:
+            logger.debug(f"  No latke mentions in text")
             progress.mark_processed('chronicling_america', page_url, 0)
             return []
 
+        # Extract newspaper metadata
+        newspaper_title = item.get('partof_title', [])
+        if isinstance(newspaper_title, list):
+            newspaper_title = newspaper_title[0] if newspaper_title else item.get('title', 'Unknown Newspaper')
+
+        date = item.get('date', '1900-01-01')
+        year = date[:4] if date else '1900'
+
         # Use Gemini to extract
-        logger.info(f"  Using Gemini to parse newspaper page...")
-        gemini_recipes = extract_recipes_with_gemini(ocr_text, f"Chronicling America - {item.get('title', 'Newspaper')}")
+        logger.info(f"  Using Gemini to parse newspaper page from {year}...")
+        gemini_recipes = extract_recipes_with_gemini(ocr_text, f"Chronicling America - {newspaper_title}")
 
         for i, recipe_data in enumerate(gemini_recipes):
             ingredients = '\n'.join(recipe_data.get('ingredients', []))
@@ -854,14 +886,14 @@ def chronicling_america_extract_recipes(item: Dict) -> List[Dict]:
                 "source": "chronicling_america",
                 "legality_tier": "public_domain_full_text",
                 "site": "chroniclingamerica.loc.gov",
-                "year": item.get('date', '1900-01-01')[:4],
+                "year": int(year),
                 "title": recipe_data.get('title', 'Latke Recipe from Newspaper'),
                 "ingredients_raw": ingredients,
                 "instructions_raw": instructions,
                 "url": page_url,
-                "author": item.get('title', 'Unknown Newspaper'),
+                "author": newspaper_title,
                 "publisher": "Library of Congress",
-                "book_id": page_url.split('/')[-2] if '/' in page_url else page_url,
+                "book_id": item.get('page_id', page_url.split('/')[-1] if '/' in page_url else page_url),
                 "country": "US"
             }
 
